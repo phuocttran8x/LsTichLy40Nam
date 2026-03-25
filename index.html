@@ -1,290 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lãi kép offline</title>
+  <title>Lãi suất kép</title>
   <style>
-    :root{
-      --bg:#020617;
-      --card:#0f172a;
-      --line:#22d3ee;
-      --line2:#facc15;
-      --line3:#f97316;
-      --grid:#334155;
-      --text:#fff;
-      --muted:#94a3b8;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1180px;margin:auto;padding:20px}
-    h1{font-size:32px;margin:0 0 8px}
-    .sub{color:var(--muted);margin-bottom:18px;line-height:1.5}
-    .grid{display:grid;grid-template-columns:320px 1fr;gap:20px}
-    .card{background:var(--card);padding:16px;border-radius:14px;border:1px solid #1e293b}
-    .panel label{display:block;font-weight:bold;margin:10px 0 6px}
-    input{width:100%;margin:5px 0 10px;padding:10px;border-radius:10px;border:1px solid #334155;background:#020617;color:#fff}
-    .hint{font-size:12px;color:var(--muted);margin-top:-4px;margin-bottom:8px;line-height:1.5}
-    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
-    .stat-title{font-size:13px;color:var(--muted);margin-bottom:6px}
-    .stat-value{font-size:24px;font-weight:bold;line-height:1.2}
-    .chart-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-    .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
-    .legend span{display:inline-flex;align-items:center;gap:8px}
-    .dot{width:12px;height:12px;border-radius:999px;display:inline-block}
-    svg{width:100%;height:460px;background:#020617;border-radius:12px;display:block}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    button{padding:10px 14px;border-radius:10px;border:1px solid #334155;background:#111827;color:#fff;cursor:pointer}
-    button:hover{filter:brightness(1.1)}
-    .year-box{font-size:14px;color:var(--muted)}
-    .formula{margin-top:16px;color:var(--muted);line-height:1.6}
-    .formula strong{color:#fff;font-size:22px;display:block;margin-bottom:8px}
-    @media (max-width: 900px){
-      .grid{grid-template-columns:1fr}
-      .stats{grid-template-columns:1fr 1fr}
-      h1{font-size:28px}
-    }
-    @media (max-width: 560px){
-      .stats{grid-template-columns:1fr}
-    }
+    :root{--bg:#020617;--panel:#0f172a;--panel2:#020617;--border:#1e293b;--text:#fff;--muted:#94a3b8;--cyan:#22d3ee;--yellow:#facc15;--orange:#f97316}
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .app{max-width:1400px;margin:0 auto;padding:20px}h1{margin:0 0 10px;font-size:32px}.sub{max-width:900px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+    .layout{display:grid;grid-template-columns:320px 1fr;gap:20px}.panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px}
+    label{display:block;font-weight:700;margin:14px 0 8px}input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #334155;background:var(--panel2);color:var(--text);outline:none;font-size:15px}
+    .hint,.status,.legend,.card .title,.explain{color:var(--muted)}.hint{font-size:12px;line-height:1.6;margin-top:8px}.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+    button{border:1px solid #334155;background:#1e293b;color:#fff;border-radius:12px;padding:10px 14px;cursor:pointer;font-size:14px}button:hover{filter:brightness(1.08)}
+    .cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px}
+    .card .value{font-size:28px;font-weight:700;line-height:1.25;word-break:break-word}.chart-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+    .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px}.legend span{display:inline-flex;align-items:center;gap:8px}.dot{width:12px;height:12px;border-radius:999px;display:inline-block}
+    .cyan{background:var(--cyan)}.yellow{background:var(--yellow)}.orange{background:var(--orange)}svg{width:100%;height:460px;display:block;background:var(--panel2);border-radius:14px}
+    .explain{margin-top:16px;line-height:1.8}.explain strong{color:#fff;font-size:28px;display:block;line-height:1.3;margin:8px 0 10px}
+    @media (max-width:1200px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:960px){.layout{grid-template-columns:1fr}}@media (max-width:640px){.cards{grid-template-columns:1fr}h1{font-size:26px}.card .value,.explain strong{font-size:22px}}
   </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Lãi kép</h1>
-  <div class="grid">
-
-    <div class="card panel">
-      <label>Tiền ban đầu</label>
-      <input id="principal" type="number" value="0" />
-
-      <label>Góp mỗi tháng ban đầu</label>
-      <input id="monthly" type="number" value="3000000" />
-      <div class="hint">Khoản góp này sẽ tự tăng theo tỷ lệ lạm phát mỗi năm.</div>
-
-      <label>Lãi suất (% / năm)</label>
-      <input id="rate" type="number" value="10" step="0.1" />
-
-      <label>Lạm phát trung bình (% / năm)</label>
-      <input id="inflation" type="number" value="0" step="0.1" />
-      <div class="hint">Ví dụ 3.5% nghĩa là sau mỗi năm, số tiền góp hàng tháng sẽ tăng thêm 3.5% để bám theo mức giá tăng.</div>
-
-      <label>Số năm</label>
-      <input id="years" type="number" value="25" />
-
-      <div class="actions">
-        <button id="playBtn">Chạy biểu đồ</button>
-        <button id="pauseBtn">Tạm dừng</button>
-        <button id="resetBtn">Vẽ lại</button>
+  <div class="app">
+    <h1>Lãi kép trực quan (Offline Full)</h1>
+    <div class="sub">File này chạy độc lập, không cần cài gì thêm. Chỉ cần mở file <b>.html</b> bằng trình duyệt là dùng được ngay. Summary lúc mới mở sẽ để <b>0</b>, không lộ kết quả cho đến khi bạn nhập dữ liệu hoặc bấm chạy biểu đồ.</div>
+    <div class="layout">
+      <div class="panel">
+        <label for="principal">Tiền ban đầu</label><input id="principal" type="number" value="0" />
+        <label for="monthly">Góp mỗi tháng ban đầu</label><input id="monthly" type="number" value="3000000" />
+        <div class="hint">Khoản góp này sẽ tự tăng theo tỷ lệ lạm phát mỗi năm.</div>
+        <label for="rate">Lãi suất (% / năm)</label><input id="rate" type="number" step="0.1" value="10" />
+        <label for="inflation">Lạm phát trung bình (% / năm)</label><input id="inflation" type="number" step="0.1" value="3.5" />
+        <div class="hint">Ví dụ 3.5% nghĩa là sau mỗi năm, số tiền góp hàng tháng sẽ tăng thêm 3.5% để bám theo mức giá tăng.</div>
+        <label for="years">Số năm</label><input id="years" type="number" value="25" />
+        <div class="btn-row"><button id="playBtn">Chạy biểu đồ</button><button id="pauseBtn">Tạm dừng</button><button id="resetBtn">Vẽ lại</button></div>
+        <div class="status" id="statusText">Đang hiển thị: Năm 35</div>
       </div>
-      <div class="year-box" id="yearBox" style="margin-top:10px;">Đang hiển thị: Năm 35</div>
-    </div>
-
-    <div>
-      <div class="stats">
-        <div class="card">
-          <div class="stat-title">Tổng tiền tự góp</div>
-          <div class="stat-value" id="contributed"></div>
+      <div>
+        <div class="cards">
+          <div class="card"><div class="title">Tổng tiền tự góp</div><div class="value" id="sumContributed">0 VND</div></div>
+          <div class="card"><div class="title">Tổng tài sản</div><div class="value" id="sumAssets">0 VND</div></div>
+          <div class="card"><div class="title">Phần lãi tăng thêm</div><div class="value" id="sumGrowth">0 VND</div></div>
+          <div class="card"><div class="title">Góp / tháng năm cuối</div><div class="value" id="sumLastMonthly">0 VND</div></div>
+          <div class="card"><div class="title">Mốc đang chạy</div><div class="value" id="sumYear">0 năm</div></div>
         </div>
-        <div class="card">
-          <div class="stat-title">Tổng tài sản</div>
-          <div class="stat-value" id="final"></div>
-        </div>
-        <div class="card">
-          <div class="stat-title">Phần lãi tăng thêm</div>
-          <div class="stat-value" id="growth"></div>
-        </div>
-        <div class="card">
-          <div class="stat-title">Góp / tháng năm cuối</div>
-          <div class="stat-value" id="lastMonthly"></div>
-        </div>
-        <div class="card">
-          <div class="stat-title">Mốc đang chạy</div>
-          <div class="stat-value" id="currentYear">35 năm</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="chart-head">
-          <div><b>Biểu đồ tăng trưởng theo năm</b></div>
-          <div class="legend">
-            <span><i class="dot" style="background:var(--line)"></i> Tổng tài sản</span>
-            <span><i class="dot" style="background:var(--line2)"></i> Tổng tiền tự góp</span>
-            <span><i class="dot" style="background:var(--line3)"></i> Góp mỗi tháng theo lạm phát</span>
+        <div class="panel">
+          <div class="chart-head">
+            <div><b>Biểu đồ tăng trưởng theo năm</b></div>
+            <div class="legend"><span><i class="dot cyan"></i> Tổng tài sản</span><span><i class="dot yellow"></i> Tổng tiền tự góp</span><span><i class="dot orange"></i> Góp mỗi tháng theo lạm phát</span></div>
           </div>
+          <svg id="chartSvg" viewBox="0 0 860 460" preserveAspectRatio="none"></svg>
         </div>
-        <svg id="chart" viewBox="0 0 860 460" preserveAspectRatio="none"></svg>
-      </div>
-
-      <div class="card formula">
-        <div>Cách tính đang dùng:</div>
-        <strong>Góp thêm mỗi tháng + lãi kép cộng dồn theo từng tháng</strong>
-        <div id="formulaText"></div>
+        <div class="panel explain">
+          <div>Cách tính đang dùng:</div>
+          <strong>Góp thêm mỗi tháng + lãi kép cộng dồn theo từng tháng</strong>
+          <div id="explainText"></div>
+        </div>
       </div>
     </div>
-
   </div>
-</div>
-
-<script>
-const el = (id) => document.getElementById(id);
-let fullData = [];
-let animIndex = 0;
-let timer = null;
-
-function format(v){
-  return new Intl.NumberFormat('vi-VN').format(Math.round(v)) + ' VND';
-}
-
-function calcData(){
-  const P = +el('principal').value || 0;
-  const baseMonthly = +el('monthly').value || 0;
-  const annualRate = (+el('rate').value || 0) / 100;
-  const inflationRate = (+el('inflation').value || 0) / 100;
-  const monthlyRate = annualRate / 12;
-  const y = Math.max(0, +el('years').value || 0);
-
-  let balance = P;
-  let total = P;
-  const data = [{ year: 0, value: balance, contributed: total, monthlyContribution: baseMonthly }];
-  let currentMonthly = baseMonthly;
-
-  for(let year = 1; year <= y; year++){
-    for(let i = 0; i < 12; i++){
-      balance = balance * (1 + monthlyRate) + currentMonthly;
-      total += currentMonthly;
-    }
-    data.push({ year, value: balance, contributed: total, monthlyContribution: currentMonthly });
-    currentMonthly = currentMonthly * (1 + inflationRate);
-  }
-
-  const lastMonthly = data[data.length - 1]?.monthlyContribution || baseMonthly;
-
-  return {
-    data,
-    totalContributed: total,
-    finalValue: balance,
-    growth: balance - total,
-    principal: P,
-    monthly: baseMonthly,
-    lastMonthly,
-    annualRate,
-    inflationRate,
-    years: y
-  };
-}
-
-function draw(data){
-  const svg = el('chart');
-  const w = 860, h = 460;
-  const pad = {top: 20, right: 24, bottom: 44, left: 92};
-  const innerW = w - pad.left - pad.right;
-  const innerH = h - pad.top - pad.bottom;
-  const maxX = Math.max(data[data.length - 1]?.year || 1, 1);
-  const maxY = Math.max(1, ...data.map(d => Math.max(d.value, d.contributed, d.monthlyContribution * 12)));
-  const x = (v) => pad.left + (v / maxX) * innerW;
-  const y = (v) => pad.top + innerH - (v / maxY) * innerH;
-
-  let html = '';
-
-  for(let i=0;i<=4;i++){
-    const gy = pad.top + (innerH/4)*i;
-    html += `<line x1="${pad.left}" y1="${gy}" x2="${w-pad.right}" y2="${gy}" stroke="#334155" stroke-width="1"/>`;
-  }
-
-  html += `<line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${h-pad.bottom}" stroke="#cbd5e1"/>`;
-  html += `<line x1="${pad.left}" y1="${h-pad.bottom}" x2="${w-pad.right}" y2="${h-pad.bottom}" stroke="#cbd5e1"/>`;
-
-  for(let i=0;i<=4;i++){
-    const val = (maxY / 4) * i;
-    const label = val >= 1e9 ? ((val/1e9).toFixed(1).replace('.0','') + ' tỷ') : (Math.round(val/1e6) + 'tr');
-    html += `<text x="${pad.left-10}" y="${y(val)+4}" text-anchor="end" font-size="12" fill="#cbd5e1">${label}</text>`;
-  }
-
-  const xStep = Math.max(1, Math.ceil(maxX / 6));
-  for(let i=0;i<=maxX;i+=xStep){
-    html += `<text x="${x(i)}" y="${h-16}" text-anchor="middle" font-size="12" fill="#cbd5e1">${i}</text>`;
-  }
-
-  let pathValue = '';
-  let pathContributed = '';
-  let pathMonthly = '';
-  data.forEach((d,i) => {
-    pathValue += (i===0 ? 'M' : 'L') + x(d.year) + ',' + y(d.value) + ' ';
-    pathContributed += (i===0 ? 'M' : 'L') + x(d.year) + ',' + y(d.contributed) + ' ';
-    pathMonthly += (i===0 ? 'M' : 'L') + x(d.year) + ',' + y(d.monthlyContribution * 12) + ' ';
-  });
-
-  html += `<path d="${pathMonthly}" stroke="#f97316" fill="none" stroke-width="2.5" stroke-dasharray="7 6" stroke-linecap="round"/>`;
-  html += `<path d="${pathContributed}" stroke="#facc15" fill="none" stroke-width="3" stroke-linecap="round"/>`;
-  html += `<path d="${pathValue}" stroke="#22d3ee" fill="none" stroke-width="4" stroke-linecap="round"/>`;
-
-  const last = data[data.length-1];
-  if(last){
-    html += `<circle cx="${x(last.year)}" cy="${y(last.value)}" r="5" fill="#ffffff"/>`;
-    html += `<circle cx="${x(last.year)}" cy="${y(last.contributed)}" r="4" fill="#facc15"/>`;
-    html += `<circle cx="${x(last.year)}" cy="${y(last.monthlyContribution * 12)}" r="4" fill="#f97316"/>`;
-  }
-
-  svg.innerHTML = html;
-}
-
-function renderSummary(result, currentIndex){
-  const year = currentIndex == null ? result.years : currentIndex;
-  const currentData = result.data[Math.min(year, result.data.length - 1)] || result.data[result.data.length - 1];
-  el('contributed').innerText = format(currentData.contributed);
-  el('final').innerText = format(currentData.value);
-  el('growth').innerText = format(currentData.value - currentData.contributed);
-  el('lastMonthly').innerText = format(currentData.monthlyContribution);
-  el('currentYear').innerText = year + ' năm';
-  el('yearBox').innerText = 'Đang hiển thị: Năm ' + year;
-  el('formulaText').innerText = `Ví dụ hiện tại: bắt đầu góp ${format(result.monthly)} / tháng trong ${result.years} năm với lãi suất ${(result.annualRate*100).toFixed(1)}% / năm và lạm phát trung bình ${(result.inflationRate*100).toFixed(1)}% / năm. Khi có lạm phát, khoản góp hàng tháng sẽ tăng dần mỗi năm để giữ sức mua. Đến năm cuối, mức góp mỗi tháng tăng lên khoảng ${format(result.lastMonthly)}. Tổng tiền tự góp là ${format(result.totalContributed)}, tổng tài sản đạt ${format(result.finalValue)}.`;
-}
-
-function renderFull(){
-  stopAnimation();
-  const result = calcData();
-  fullData = result.data;
-  draw(fullData);
-  renderSummary(result, result.years);
-  animIndex = result.years;
-}
-
-function playAnimation(){
-  stopAnimation();
-  const result = calcData();
-  fullData = result.data;
-  animIndex = 0;
-  draw([fullData[0]]);
-  renderSummary(result, 0);
-
-  timer = setInterval(() => {
-    animIndex++;
-    if(animIndex >= fullData.length){
-      animIndex = fullData.length - 1;
-      stopAnimation();
-    }
-    draw(fullData.slice(0, animIndex + 1));
-    renderSummary(result, animIndex);
-  }, 450);
-}
-
-function stopAnimation(){
-  if(timer){
-    clearInterval(timer);
-    timer = null;
-  }
-}
-
-['principal','monthly','rate','inflation','years'].forEach(id => {
-  el(id).addEventListener('input', renderFull);
-});
-
-el('playBtn').addEventListener('click', playAnimation);
-el('pauseBtn').addEventListener('click', stopAnimation);
-el('resetBtn').addEventListener('click', renderFull);
-
-renderFull();
-</script>
+  <script>
+    const els={principal:document.getElementById('principal'),monthly:document.getElementById('monthly'),rate:document.getElementById('rate'),inflation:document.getElementById('inflation'),years:document.getElementById('years'),playBtn:document.getElementById('playBtn'),pauseBtn:document.getElementById('pauseBtn'),resetBtn:document.getElementById('resetBtn'),statusText:document.getElementById('statusText'),sumContributed:document.getElementById('sumContributed'),sumAssets:document.getElementById('sumAssets'),sumGrowth:document.getElementById('sumGrowth'),sumLastMonthly:document.getElementById('sumLastMonthly'),sumYear:document.getElementById('sumYear'),explainText:document.getElementById('explainText'),chartSvg:document.getElementById('chartSvg')};
+    const state={hasStarted:false,displayYear:35,isPlaying:false,timer:null,result:null};
+    const parseNumber=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+    const formatCurrency=v=>`${new Intl.NumberFormat('vi-VN').format(Math.round(v))} VND`;
+    function calculateData({principal,monthly,rate,inflation,years}){const annualRate=rate/100,inflationRate=inflation/100,monthlyRate=annualRate/12,totalYears=Math.max(0,Math.floor(years));let balance=principal,total=principal,currentMonthly=monthly;const data=[{year:0,value:balance,contributed:total,monthlyContribution:currentMonthly}];for(let year=1;year<=totalYears;year+=1){for(let month=0;month<12;month+=1){balance=balance*(1+monthlyRate)+currentMonthly;total+=currentMonthly}data.push({year,value:balance,contributed:total,monthlyContribution:currentMonthly});currentMonthly=currentMonthly*(1+inflationRate)}return{data,totalContributed:total,finalValue:balance,growth:balance-total,principal,monthly,lastMonthly:data[data.length-1]?.monthlyContribution??monthly,annualRate,inflationRate,years:totalYears}}
+    function stopAnimation(){if(state.timer){clearInterval(state.timer);state.timer=null}state.isPlaying=false}
+    function recalc(){state.result=calculateData({principal:parseNumber(els.principal.value),monthly:parseNumber(els.monthly.value),rate:parseNumber(els.rate.value),inflation:parseNumber(els.inflation.value),years:parseNumber(els.years.value)});if(!state.isPlaying)state.displayYear=state.result.years}
+    function buildLinePath(data,x,y,keyFn){return data.map((p,i)=>`${i===0?'M':'L'}${x(p.year)},${y(keyFn(p))}`).join(' ')}
+    function renderSummary(){const result=state.result,currentData=result.data[Math.min(state.displayYear,result.data.length-1)]||result.data[result.data.length-1];els.sumContributed.textContent=formatCurrency(state.hasStarted?currentData.contributed:0);els.sumAssets.textContent=formatCurrency(state.hasStarted?currentData.value:0);els.sumGrowth.textContent=formatCurrency(state.hasStarted?currentData.value-currentData.contributed:0);els.sumLastMonthly.textContent=formatCurrency(state.hasStarted?currentData.monthlyContribution:0);els.sumYear.textContent=state.hasStarted?`${state.displayYear} năm`:'0 năm';els.statusText.textContent=`Đang hiển thị: Năm ${state.displayYear}${state.isPlaying?' (đang chạy)':''}`;els.explainText.textContent=`Ví dụ hiện tại: bắt đầu góp ${formatCurrency(result.monthly)} / tháng trong ${result.years} năm với lãi suất ${(result.annualRate*100).toFixed(1)}% / năm và lạm phát trung bình ${(result.inflationRate*100).toFixed(1)}% / năm. Khi có lạm phát, khoản góp hàng tháng sẽ tăng dần mỗi năm để giữ sức mua. Đến năm cuối, mức góp mỗi tháng tăng lên khoảng ${formatCurrency(result.lastMonthly)}. Tổng tiền tự góp là ${formatCurrency(result.totalContributed)}, tổng tài sản đạt ${formatCurrency(result.finalValue)}.`}
+    function renderChart(){const result=state.result,visibleData=result.data.slice(0,Math.max(state.displayYear+1,1)),width=860,height=460,pad={top:20,right:24,bottom:44,left:92},innerWidth=width-pad.left-pad.right,innerHeight=height-pad.top-pad.bottom,maxX=Math.max(result.data[result.data.length-1]?.year??1,1),maxY=Math.max(1,...result.data.map(p=>Math.max(p.value,p.contributed,p.monthlyContribution*12))),x=v=>pad.left+(v/maxX)*innerWidth,y=v=>pad.top+innerHeight-(v/maxY)*innerHeight;
+      const gridLines=Array.from({length:5},(_,i)=>{const gy=pad.top+(innerHeight/4)*i;return `<line x1="${pad.left}" y1="${gy}" x2="${width-pad.right}" y2="${gy}" stroke="#334155" stroke-width="1" />`}).join('');
+      const yLabels=Array.from({length:5},(_,i)=>{const value=(maxY/4)*i,label=value>=1e9?`${(value/1e9).toFixed(1).replace('.0','')} tỷ`:`${Math.round(value/1e6)}tr`;return `<text x="${pad.left-10}" y="${y(value)+4}" text-anchor="end" font-size="12" fill="#cbd5e1">${label}</text>`}).join('');
+      const xStep=Math.max(1,Math.ceil(maxX/6));
+      const xLabels=Array.from({length:Math.floor(maxX/xStep)+1},(_,i)=>{const tickValue=Math.min(i*xStep,maxX);return `<text x="${x(tickValue)}" y="${height-16}" text-anchor="middle" font-size="12" fill="#cbd5e1">${tickValue}</text>`}).join('');
+      const assetPath=buildLinePath(visibleData,x,y,p=>p.value),contributionPath=buildLinePath(visibleData,x,y,p=>p.contributed),monthlyPath=buildLinePath(visibleData,x,y,p=>p.monthlyContribution*12),last=visibleData[visibleData.length-1];
+      els.chartSvg.innerHTML=`${gridLines}<line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${height-pad.bottom}" stroke="#cbd5e1" /><line x1="${pad.left}" y1="${height-pad.bottom}" x2="${width-pad.right}" y2="${height-pad.bottom}" stroke="#cbd5e1" />${yLabels}${xLabels}<path d="${monthlyPath}" stroke="#f97316" fill="none" stroke-width="2.5" stroke-dasharray="7 6" stroke-linecap="round" /><path d="${contributionPath}" stroke="#facc15" fill="none" stroke-width="3" stroke-linecap="round" /><path d="${assetPath}" stroke="#22d3ee" fill="none" stroke-width="4" stroke-linecap="round" />${last?`<circle cx="${x(last.year)}" cy="${y(last.value)}" r="5" fill="#ffffff" />`:''}${last?`<circle cx="${x(last.year)}" cy="${y(last.contributed)}" r="4" fill="#facc15" />`:''}${last?`<circle cx="${x(last.year)}" cy="${y(last.monthlyContribution*12)}" r="4" fill="#f97316" />`:''}`}
+    function renderAll(){recalc();renderSummary();renderChart()}
+    function playAnimation(){state.hasStarted=true;stopAnimation();recalc();state.displayYear=0;state.isPlaying=true;renderSummary();renderChart();state.timer=setInterval(()=>{const next=state.displayYear+1;if(next>=state.result.data.length-1){state.displayYear=state.result.data.length-1;stopAnimation();renderSummary();renderChart();return}state.displayYear=next;renderSummary();renderChart()},450)}
+    function resetChart(){stopAnimation();recalc();state.displayYear=state.result.years;renderSummary();renderChart()}
+    ['principal','monthly','rate','inflation','years'].forEach(k=>els[k].addEventListener('input',()=>{state.hasStarted=true;stopAnimation();renderAll()}));
+    els.playBtn.addEventListener('click',playAnimation);els.pauseBtn.addEventListener('click',()=>{stopAnimation();renderSummary()});els.resetBtn.addEventListener('click',resetChart);renderAll();
+  </script>
 </body>
 </html>
